@@ -2,23 +2,18 @@
 //  ContentView.swift
 //  Expense Tracker
 //
-//  Created by Habib Mohammed on 09/12/2025.
+//  Thin wrapper to mirror Flutter's ExpenseListScreen.
 //
 
 import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-        }
-        .padding()
+        ExpenseListView()
     }
 }
 
 #Preview {
     ContentView()
+        .environmentObject(ExpenseStore())
 }
