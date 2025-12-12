@@ -6,10 +6,14 @@
 //
 
 import SwiftUI
-
 @main
 struct Expense_TrackerApp: App {
-    @StateObject private var store = ExpenseStore()
+    @StateObject private var store: ExpenseStore
+    
+    init() {
+        let repository = ExpenseRepository()
+        _store = StateObject(wrappedValue: ExpenseStore(repository: repository))
+    }
 
     var body: some Scene {
         WindowGroup {

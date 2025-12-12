@@ -11,19 +11,35 @@ struct AddEditExpenseView: View {
     @EnvironmentObject private var store: ExpenseStore
     @Environment(\.dismiss) private var dismiss
 
-    private let currencyService = CurrencyService()
-    var expense: Expense?
+    private var currencyService = CurrencyService()
+    let expenseId: String?
 
     @State private var title: String = ""
     @State private var amountText: String = ""
     @State private var category: Category = .food
     @State private var currency: Currency = .usd
+    
+    init(expenseId: String?) {
+        self.expenseId = expenseId
+    }
+
+    private func loadExistingExpense() {
+        expense.flatMap { e in
+            title = e.title
+            amountText = String(format: "%.2f", e.amount)
+            category = e.category
+            currency = e.currency
+        }
+    }
+
+    private var expense: Expense? {
+        expenseId.flatMap { store.expense(withId: $0) }
+    }
 
     private var isEditing: Bool { expense != nil }
 
     private var isSaveDisabled: Bool {
-        title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
-        Double(amountText) == nil
+        title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || Double(amountText) == nil
     }
 
     var body: some View {
@@ -67,24 +83,21 @@ struct AddEditExpenseView: View {
         }
     }
 
-    private func loadExistingExpense() {
-        guard let expense else { return }
-        title = expense.title
-        amountText = String(format: "%.2f", expense.amount)
-        category = expense.category
-        currency = expense.currency
-    }
-
     private func save() {
-        guard let parsedAmount = Double(amountText.trimmingCharacters(in: .whitespacesAndNewlines)) else {
+        guard let parsedAmount = Double(amountText.trimmingCharacters(in: .whitespacesAndNewlines))
+        else {
             return
         }
 
         // Match the Flutter flow: convert to USD and store as USD.
-        let convertedAmount = currencyService.convert(amount: parsedAmount, from: currency, to: .usd)
+        let convertedAmount = currencyService.convert(
+            amount: parsedAmount,
+            from: currency,
+            to: .usd
+        )
 
         let newExpense = Expense(
-            id: expense?.id ?? UUID().uuidString,
+            id: expenseId ?? UUID().uuidString,
             title: title.trimmingCharacters(in: .whitespacesAndNewlines),
             amount: convertedAmount,
             date: Date(),

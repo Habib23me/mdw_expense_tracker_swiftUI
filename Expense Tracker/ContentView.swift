@@ -15,5 +15,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .environmentObject(ExpenseStore())
+        .environmentObject(ExpenseStore(repository: ExpenseRepository()))
 }
