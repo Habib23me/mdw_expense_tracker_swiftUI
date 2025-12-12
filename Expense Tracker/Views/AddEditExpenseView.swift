@@ -17,7 +17,8 @@ struct AddEditExpenseView: View {
     @State private var amountText: String = ""
     @State private var category: Category = .food
     @State private var currency: Currency = .usd
-    @State private var expenseId: String?
+    
+    private let expenseId: String?
 
     init(expenseId: String?) {
         self.expenseId = expenseId
@@ -25,12 +26,14 @@ struct AddEditExpenseView: View {
    
 
     private func loadExistingExpense() {
-        expense.flatMap { e in
-            title = e.title
-            amountText = String(format: "%.2f", e.amount)
-            category = e.category
-            currency = e.currency
+        guard let expenseId = expenseId,
+              let expense = store.expense(withId: expenseId) else {
+            return
         }
+        title = expense.title
+        amountText = String(format: "%.2f", expense.amount)
+        category = expense.category
+        currency = expense.currency
     }
 
     private var expense: Expense? {
@@ -44,9 +47,8 @@ struct AddEditExpenseView: View {
     }
 
     var body: some View {
-        NavigationStack {
             Form {
-                Section("Details") {
+                Section {
                     TextField("Title", text: $title)
                         .textInputAutocapitalization(.words)
 
@@ -72,16 +74,14 @@ struct AddEditExpenseView: View {
             }
             .navigationTitle(isEditing ? "Edit Expense" : "Add Expense")
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save", action: save)
                         .disabled(isSaveDisabled)
                 }
             }
-            .onAppear(perform: loadExistingExpense)
-        }
+            .onAppear {
+                loadExistingExpense()
+            }
     }
 
     private func save() {
