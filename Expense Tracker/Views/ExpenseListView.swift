@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ExpenseListView: View {
     @EnvironmentObject private var store: ExpenseStore
-    @State private var path = NavigationPath()
+    @EnvironmentObject private var router: AppRouter
 
     private var total: Double {
         store.expenses.reduce(0) { $0 + $1.amount }
@@ -20,49 +20,43 @@ struct ExpenseListView: View {
     }
 
     var body: some View {
-        NavigationStack(path: $path) {
-            List {
-                if store.expenses.isEmpty {
-                    Section {
-                        Text("No expenses yet")
-                            .foregroundStyle(.secondary)
-                    }
-                } else {
-                    Section {
-                        ForEach(store.expenses) { expense in
-                            ExpenseRow(
-                                expense: expense,
-                                onTap: {
-                                    path.append(expense.id)
-                                }
-                            )
-                        }
-                    }
-                }
-
+        List {
+            if store.expenses.isEmpty {
                 Section {
-                    HStack {
-                        Text("Total")
-                            .font(.headline)
-                        Spacer()
-                        Text(formattedTotal)
-                            .font(.headline.weight(.bold))
+                    Text("No expenses yet")
+                        .foregroundStyle(.secondary)
+                }
+            } else {
+                Section {
+                    ForEach(store.expenses) { expense in
+                        ExpenseRow(
+                            expense: expense,
+                            onTap: {
+                                router.go(to: .addEditView(id: expense.id))
+                            }
+                        )
                     }
                 }
             }
-            .navigationTitle("Expenses")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        path.append(nil)
-                    } label: {
-                        Image(systemName: "plus")
-                    }
+
+            Section {
+                HStack {
+                    Text("Total")
+                        .font(.headline)
+                    Spacer()
+                    Text(formattedTotal)
+                        .font(.headline.weight(.bold))
                 }
             }
-            .navigationDestination(for: String.self) { id in
-                AddEditExpenseView(expenseId: id)
-                    .environmentObject(store)
+        }
+        .navigationTitle("Expenses")
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    router.go(to: .addEditView(id: nil))
+                } label: {
+                    Image(systemName: "plus")
+                }
             }
         }
     }

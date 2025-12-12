@@ -12,16 +12,17 @@ struct AddEditExpenseView: View {
     @Environment(\.dismiss) private var dismiss
 
     private var currencyService = CurrencyService()
-    let expenseId: String?
 
     @State private var title: String = ""
     @State private var amountText: String = ""
     @State private var category: Category = .food
     @State private var currency: Currency = .usd
-    
+    @State private var expenseId: String?
+
     init(expenseId: String?) {
         self.expenseId = expenseId
     }
+   
 
     private func loadExistingExpense() {
         expense.flatMap { e in

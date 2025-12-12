@@ -9,6 +9,7 @@ import SwiftUI
 @main
 struct Expense_TrackerApp: App {
     @StateObject private var store: ExpenseStore
+    @StateObject private var router = AppRouter()
     
     init() {
         let repository = ExpenseRepository()
@@ -19,6 +20,7 @@ struct Expense_TrackerApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(store)
+                .environmentObject(router)
         }
     }
 }
